@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heart Protocol</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #0d0d0d; font-family: 'Courier New', Courier, monospace; color: #fff; }
+        #ide-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #1e1e1e; display: flex; flex-direction: column; z-index: 1; transition: opacity 1s ease-out; }
+        #ide-header { background-color: #2d2d2d; display: flex; padding: 8px 10px 0 10px; gap: 5px; border-bottom: 1px solid #111; }
+        .tab { background-color: #1e1e1e; padding: 8px 20px; color: #9cdcfe; font-size: 13px; border-top: 2px solid #007acc; font-family: sans-serif; }
+        .tab.inactive { background-color: #2d2d2d; color: #888; border-top: none; }
+        #code-window { flex-grow: 1; overflow: hidden; padding: 20px 40px; position: relative; }
+        #code-content { position: absolute; top: 100%; color: #d4d4d4; font-size: 15px; line-height: 1.6; white-space: pre-wrap; animation: scrollCode 12s linear infinite; }
+        @keyframes scrollCode { 0% { top: 100%; } 100% { top: -100%; } }
+        .keyword { color: #569cd6; } .string { color: #ce9178; } .function { color: #dcdcaa; } .comment { color: #6a9955; } .tag { color: #4ec9b0; }
+        #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 5; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 1s ease-out; }
+        #ui p { color: #00ff00; margin-bottom: 25px; text-shadow: 0 0 8px rgba(0, 255, 0, 0.5); }
+        #btn { background-color: rgba(255, 42, 95, 0.1); border: 1px solid #ff2a5f; color: #ff2a5f; padding: 12px 24px; font-family: inherit; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 2px; border-radius: 4px; }
+        #btn:hover { background-color: #ff2a5f; color: #fff; box-shadow: 0 0 20px #ff2a5f; }
+        #dedication { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; opacity: 0; transition: opacity 3s ease-in; z-index: 2; pointer-events: none; }
+        #dedication h1 { font-family: 'Arial', sans-serif; font-size: 50px; margin: 0; color: #fff; text-shadow: 0 0 20px #ff2a5f, 0 0 40px #ff2a5f; letter-spacing: 5px; }
+        #dedication p { font-family: 'Courier New', monospace; font-size: 18px; color: #ffb3c6; margin-top: 10px; }
+        canvas { display: block; position: absolute; top: 0; left: 0; z-index: 0; }
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" src="{{ url_for('static', filename='piosenka.mp3') }}" loop></audio>
+
+    <div id="ide-container">
+        <div id="ide-header">
+            <div class="tab">HeartScene.tsx</div>
+            <div class="tab inactive">style.css</div>
+        </div>
+        <div id="code-window">
+            <div id="code-content">
+<span class="comment">// Initializing core romantic protocols...</span>
+<span class="keyword">import</span> { useState, useEffect } <span class="keyword">from</span> <span class="string">'react'</span>;
+<span class="keyword">import</span> { HeartAnimation } <span class="keyword">from</span> <span class="string">'./components'</span>;
+
+<span class="keyword">export default function</span> <span class="function">HeartScene</span>() {
+    <span class="keyword">const</span> [isDecrypted, setIsDecrypted] = <span class="function">useState</span>(false);
+
+    <span class="keyword">const</span> <span class="function">initSequence</span> = () => {
+        console.<span class="function">log</span>(<span class="string">"Bypassing mainframe..."</span>);
+        <span class="function">setTimeout</span>(() => {
+            <span class="function">setIsDecrypted</span>(true);
+        }, 1000);
+    };
+            </div>
+        </div>
+    </div>
+
+    <div id="overlay">
+        <div id="ui">
+            <p>[system] Initializing heart.PROTOCOL...</p>
+            <button id="btn">DECRYPT MESSAGE</button>
+        </div>
+    </div>
+
+    <div id="dedication">
+        <h1>KOCHAM CIĘ</h1>
+        <p>100 powodów to i tak za mało...</p>
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        const button = document.getElementById('btn');
+        const overlay = document.getElementById('overlay');
+        const ide = document.getElementById('ide-container');
+        const audio = document.getElementById('bg-music');
+        const dedication = document.getElementById('dedication');
+
+        let mouse = { x: -1000, y: -1000 };
+        window.addEventListener('mousemove', (e) => { mouse.x = e.x; mouse.y = e.y; });
+
+        const phrases = [
+            "I love you", "Twój uśmiech", "Twoje oczy", 
+            "Jesteś najlepsza", "Zawsze wspierasz", "Dla Ciebie wszystko"
+        ];
+
+        function getHeartPoint(t, scale) {
+            const x = 16 * Math.pow(Math.sin(t), 3);
+            const y = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+            return { x: x * scale + canvas.width / 2, y: (y - 6) * scale + canvas.height / 2 };
+        }
+
+        class Particle {
+            constructor(targetX, targetY) {
+                this.x = canvas.width / 2;
+                this.y = canvas.height / 2;
+                this.baseX = targetX; 
+                this.baseY = targetY;
+                this.speed = Math.random() * 0.04 + 0.015;
+                this.text = phrases[Math.floor(Math.random() * phrases.length)];
+                this.opacity = 0; 
+                this.phase = Math.random() * Math.PI * 2; 
+                this.opacitySpeed = Math.random() * 0.05 + 0.02; 
+            }
+            update() {
+                let dx = mouse.x - this.x;
+                let dy = mouse.y - this.y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+                let maxForceArea = 100; 
+
+                if (distance < maxForceArea) {
+                    let force = (maxForceArea - distance) / maxForceArea;
+                    this.x -= (dx / distance) * force * 5;
+                    this.y -= (dy / distance) * force * 5;
+                } else {
+                    this.x += (this.baseX - this.x) * this.speed;
+                    this.y += (this.baseY - this.y) * this.speed;
+                }
+                
+                this.phase += this.opacitySpeed;
+                this.opacity = (Math.sin(this.phase) + 1) / 2;
+            }
+            draw() {
+                ctx.fillStyle = `rgba(255, 42, 95, ${this.opacity})`;
+                ctx.shadowColor = `rgba(255, 42, 95, ${this.opacity})`;
+                ctx.shadowBlur = 8;
+                ctx.font = "bold 13px 'Courier New'";
+                ctx.fillText(this.text, this.x, this.y);
+            }
+        }
+
+        function init() {
+            audio.play().catch(e => console.log("Audio blocked"));
+            overlay.style.opacity = '0';
+            ide.style.opacity = '0';
+            
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                ide.style.display = 'none';
+                
+                for (let i = 0; i < Math.PI * 2; i += 0.06) {
+                    for(let j = 0; j < 4; j++) {
+                        const scale = 28 - j * 2.5;
+                        const pos = getHeartPoint(i, scale);
+                        const spreadX = pos.x + (Math.random() - 0.5) * 15;
+                        const spreadY = pos.y + (Math.random() - 0.5) * 15;
+                        particles.push(new Particle(spreadX, spreadY));
+                    }
+                }
+                animate();
+
+                setTimeout(() => {
+                    dedication.style.opacity = '1';
+                }, 5000);
+
+            }, 1000); 
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(13, 13, 13, 0.4)';
+            ctx.shadowBlur = 0;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+
+        button.addEventListener('click', init);
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
